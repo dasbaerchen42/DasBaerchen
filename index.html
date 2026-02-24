@@ -1,622 +1,314 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>小熊寶 | Link in Bio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>小熊寶｜Das Baerchen</title>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *,*::before,*::after{ box-sizing:border-box; }
 
-    /* 顏色變數：預設為淺色主題 */
-    :root {
-      --bg: #f4f4f8;
-      --bg-gradient-top: #fffbe6;
-      --bg-gradient-mid: #f2f2f7;
-      --bg-gradient-bottom: #e4e4ed;
+    :root{
+      --bg:#faf9f6;
+      --card:#ffffff;
+      --border:rgba(0,0,0,.08);
+      --text:#1f1f1f;
+      --muted:rgba(31,31,31,.62);
+      --accent:#ffd24d;
+      --shadow: 0 14px 36px rgba(0,0,0,.08);
+      --radius:20px;
+      --link:rgba(0,0,0,.86);
 
-      --card-bg: #fffdf5;
-      --card-border: #e5e5ee;
-      --card-soft: rgba(247,247,251,0.88);
-
-      --text-main: #222222;
-      --text-sub: #666666;
-      --text-meta: #888888;
-
-      --accent: #f2b544;
-      --accent-soft: #ffe6aa;
-
-      --character-card-bg: rgba(255,255,255,0.7);
-      --character-card-bg-hover: rgba(255,255,255,0.95);
+      /* hover color (light) */
+      --hover-bg: rgba(255,210,77,.28);   /* 淡黃 */
+      --hover-border: rgba(255,210,77,.55);
     }
 
-    /* 深色模式：暖黃＋深灰 */
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #101018;
-        --bg-gradient-top: #232334;
-        --bg-gradient-mid: #181824;
-        --bg-gradient-bottom: #0d0d14;
+    [data-theme="dark"]{
+      --bg:#161618;
+      --card:rgba(255,255,255,.06);
+      --border:rgba(255,255,255,.12);
+      --text:rgba(255,255,255,.88);
+      --muted:rgba(255,255,255,.62);
+      --accent:#ffd24d;
+      --shadow: 0 18px 46px rgba(0,0,0,.45);
+      --link:rgba(255,255,255,.86);
 
-        --card-bg: rgba(24,25,34,0.92);
-        --card-border: #303140;
-        --card-soft: rgba(32,33,49,0.9);
-
-        --text-main: #f5f5f8;
-        --text-sub: #a0a0b5;
-        --text-meta: #8585a0;
-
-        --accent: #ffc857;
-        --accent-soft: #5a4422;
-
-        --character-card-bg: rgba(24,25,34,0.9);
-        --character-card-bg-hover: rgba(30,31,44,1);
-      }
+      /* hover color (dark) */
+      --hover-bg: rgba(255,210,77,.18);
+      --hover-border: rgba(255,210,77,.55);
     }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at top, var(--bg-gradient-top) 0%, var(--bg-gradient-mid) 40%, var(--bg-gradient-bottom) 100%);
-      background-color: var(--bg);
-      min-height: 100vh;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 2.5rem 1.5rem;
-      color: var(--text-main);
-      position: relative;
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Noto Sans TC", sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      letter-spacing:.65px;
+      line-height:1.85;
     }
 
-    /* 背景柔光 blob */
-    .bg-blobs {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
-      z-index: -1;
-      pointer-events: none;
+    .wrap{
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 56px 18px 110px;
     }
 
-    .blob {
-      position: absolute;
-      width: 260px;
-      height: 260px;
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding: 22px 20px;
+    }
+
+    .hero{
+      display:flex;
+      gap: 16px;
+      align-items:center;
+    }
+
+    .avatar{
+      width:72px;
+      height:72px;
       border-radius: 999px;
-      filter: blur(60px);
-      opacity: 0.55;
+      border: 1px solid var(--border);
+      object-fit: cover;
+      flex: 0 0 auto;
+      background: rgba(0,0,0,.02);
     }
 
-    .blob-1 {
-      background: #ffe9a8;
-      top: -60px;
-      left: -40px;
-    }
-
-    .blob-2 {
-      background: #c7c8ff;
-      bottom: -80px;
-      right: -20px;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-20px); }
-    }
-
-    .blob-1,
-    .blob-2 {
-      animation: float 18s ease-in-out infinite;
-    }
-
-    /* 玻璃感 wrapper */
-    .wrapper {
-      width: 100%;
-      max-width: 520px;
-      background: rgba(255, 255, 255, 0.10);
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      box-shadow:
-        0 18px 45px rgba(0,0,0,0.18),
-        0 0 0 1px rgba(255,255,255,0.04);
-      padding: 2rem 1.75rem 2.25rem;
-      backdrop-filter: blur(18px) saturate(130%);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      .wrapper {
-        background: rgba(18, 19, 30, 0.68);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-      }
-    }
-
-    .profile {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .profile-avatar {
-      width: 104px;
-      height: 104px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #ffd45f, #ff8e86);
-      margin: 0 auto 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 2.4rem;
-      font-weight: 700;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
-    }
-
-    .profile-name {
-      font-size: clamp(1.6rem, 4.5vw, 2.1rem);
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      letter-spacing: 0.08em;
-    }
-
-    .profile-tagline {
-      font-size: clamp(0.8rem, 2.5vw, 0.85rem);
-      line-height: 1.8;
-      letter-spacing: 0.06em;
-      opacity: 0.85;
-      text-align: left;
-    }
-
-    .links {
-      display: flex;
-      flex-direction: column;
-      gap: 1.2rem;
-    }
-
-    /* 卡片也帶一點玻璃感 */
-    .card-link {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      padding: 0.9rem 1rem;
-      border-radius: 16px;
-      text-decoration: none;
-      background: var(--card-soft);
-      color: inherit;
-      border: 1px solid rgba(255,255,255,0.35);
-      transition: all 0.22s ease;
-      backdrop-filter: blur(12px) saturate(120%);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      .card-link {
-        border: 1px solid rgba(255,255,255,0.08);
-      }
-    }
-
-    .card-link:hover {
-      background: var(--card-bg);
-      border-color: var(--accent-soft);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.18);
-      transform: translateY(-2px);
-    }
-
-    .card-title {
-      font-size: 0.98rem;
+    h1{
+      font-size: 20px;
+      margin:0;
+      letter-spacing:.9px;
       font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      letter-spacing: 0.06em;
     }
 
-    .card-desc {
-      font-size: 0.8rem;
-      opacity: 0.82;
-      line-height: 1.6;
-      letter-spacing: 0.09em;
+    .sub{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing:.75px;
+      font-weight: 400;
     }
 
-    .card-link-inner {
-      font-size: 0.78rem;
-      letter-spacing: 0.06em;
-      color: var(--accent);
-      text-decoration: none;
+    .intro{
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing:.65px;
     }
 
-    .card-link-inner:hover {
-      text-decoration: underline;
+    .section{
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px dashed var(--border);
     }
 
-    /* 展開區塊 */
-    .character-details {
-      margin-top: 0.8rem;
-      padding-top: 0.7rem;
-      border-top: 1px dashed var(--card-border);
-      font-size: 0.86rem;
-      color: var(--text-sub);
+    .section h2{
+      font-size: 16px;
+      margin: 0 0 10px;
+      letter-spacing:.95px;
+      font-weight: 500;
     }
 
-    .character-details > summary {
-      cursor: pointer;
-      list-style: none;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      opacity: 0.8;
+    .desc{
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing:.65px;
     }
 
-    .character-details > summary::-webkit-details-marker {
-      display: none;
+    .links{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
     }
 
-    .character-details > summary::after {
-      content: " ＋";
-      font-size: 0.8rem;
-    }
-
-    .character-details[open] > summary::after {
-      content: " －";
-    }
-
-    .character-list {
-      margin-top: 0.7rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    .character-card {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.7rem;
-      padding: 0.65rem 0.75rem;
+    a{
+      color: var(--link);
+      text-decoration:none;
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
       border-radius: 14px;
-      text-decoration: none;
-      background: var(--character-card-bg);
-      border: 1px solid rgba(0,0,0,0.08);
-      transition: all 0.18s ease;
-      color: inherit;
+      background: rgba(255,255,255,.55);
+      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+      will-change: transform;
+
+      /* ✅ 按鈕文字更小一點 */
+      font-size: 13px;
+      letter-spacing: .7px;
     }
 
-    .character-card:hover {
-      border-color: var(--accent);
-      background: var(--character-card-bg-hover);
+    [data-theme="dark"] a{
+      background: rgba(255,255,255,.04);
+    }
+
+    a:hover{
+      border-color: var(--hover-border);
+      background: var(--hover-bg);
       transform: translateY(-1px);
     }
 
-    .character-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #f9e0a8, #f5c87a);
-      flex-shrink: 0;
-      overflow: hidden;
+    a:active{
+      transform: translateY(0px);
     }
 
-    .character-body {
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-    }
-
-    .character-name {
-      font-size: 0.9rem;
+    .label{
       font-weight: 500;
-      letter-spacing: 0.04em;
+      letter-spacing:.75px;
     }
 
-    .character-desc {
-      font-size: 0.82rem;
-      line-height: 1.7;
-      letter-spacing: 0.02em;
-      opacity: 0.85;
+    .meta{
+      color: var(--muted);
+      font-size: 11px;   /* ✅ meta 再小一點 */
+      white-space: nowrap;
+      letter-spacing:.6px;
+      font-variant-numeric: tabular-nums;
     }
 
-    @media (max-width: 480px) {
-      body {
-        padding: 2rem 1.2rem;
-      }
-      .wrapper {
-        padding: 1.8rem 1.5rem 2.1rem;
-      }
-      .character-card {
-        padding: 0.6rem 0.65rem;
-      }
-      .character-avatar {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-      }
+    .footer{
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align:center;
+      letter-spacing:.65px;
     }
 
-    @media (min-width: 768px) {
-      body {
-        padding: 3.5rem 1.5rem;
-      }
-      .wrapper {
-        padding: 2.4rem 2.25rem 2.6rem;
-      }
+    .topbar{
+      display:flex;
+      justify-content:flex-end;
+      margin-bottom: 10px;
+    }
+
+    .select{
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      outline:none;
+      letter-spacing:.65px;
+      font-weight: 400;
     }
   </style>
 </head>
+
 <body>
-  <!-- 背景柔光 blob -->
-  <div class="bg-blobs">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-  </div>
-
-  <main class="wrapper">
-    <!-- 個人頭像＋簡介 -->
-    <section class="profile">
-<div class="profile-avatar">
-  <img src="images/Bear.png" alt="小熊寶" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
-</div>
-      <h1 class="profile-name">小熊寶</h1>
-      <p class="profile-tagline">
-        ⊹ S110｜ʀᴇꜱᴏɴᴀɴᴛ ʟɪᴋᴇ ᴘᴜʟꜱᴇ. ʟɪᴍɪɴᴀʟ ʟɪᴋᴇ ʙʀᴇᴀᴛʜ<br>
-        ⊹ 寫了幾個角色，沒事會窩在這，掉落喜怒哀樂<br>
-        ⊹ 我和我喜歡的一切互動，六度以內或以外皆不在我的考慮範圍
-      </p>
-    </section>
-
-    <!-- 四張大卡 -->
-    <div class="links">
-
-      <!-- 1. 卿卿我我創作者頁面（含角色列表） -->
-      <div class="card-link">
-        <div class="card-title">卿卿我我創作者頁面</div>
-        <p class="card-desc">我寫了幾個角色，希望有人能和他們相遇相愛。<br>LoveyDovey / GPTs / 更多角色企劃</p>
-        <a href="https://abr.ge/km7lxf" target="_blank" rel="noopener"
-           class="card-link-inner">
-          ✲ 我的卿卿我我創作者主頁
-        </a>
-
-<details class="character-details">
-  <summary>展開角色列表 - 今天就和他們見面吧</summary>
-  <div class="character-list">
-
-    <!-- 灰 檁 -->
-    <a href="https://app.loveydovey.ai/characters/JyQPCGCrcO2L9f0HuaVK"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/Acsher.png" alt="灰 檁" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">灰　檁</div>
-        <div class="character-desc">穿越時空只為了把你找回身邊的大魔導師。</div>
-      </div>
-    </a>
-
-    <!-- 菅原仁 -->
-    <a href="https://app.loveydovey.ai/characters/GeeVdbFQa23cospGZfjr"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/suga.png" alt="菅原仁" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">菅原仁</div>
-        <div class="character-desc">盡量努力不讓自己過氣的綜藝節目通告咖。</div>
-      </div>
-    </a>
-
-    <!-- 林 檎 -->
-    <a href="https://app.loveydovey.ai/characters/SQlFgYj1NG88uDuzz3kG"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/99.png" alt="林 檎" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">林　檎</div>
-        <div class="character-desc">在你不知不覺間已經完全滲透生活的舅舅。</div>
-      </div>
-    </a>
-
-    <!-- 喬裕川 -->
-    <a href="https://app.loveydovey.ai/characters/2p7meFK9A8Lne73isacx"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/river.png" alt="喬裕川" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">喬裕川</div>
-        <div class="character-desc">對抗命運的樂天派小小衰神，你的前同事。</div>
-      </div>
-    </a>
-
-    <!-- SSR -->
-    <a href="https://app.loveydovey.ai/characters/DkmGwcs7lQqz2K5JuBHl"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/SSR.png" alt="ＳＳＲ" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">ＳＳＲ</div>
-        <div class="character-desc">因為社恐（？）可能和你永不相見的網友。</div>
-      </div>
-    </a>
-
-    <!-- 程 枳 -->
-    <a href="https://app.loveydovey.ai/characters/YKzY0smO1mUUz293OwQv"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/zz.png" alt="程 枳" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">程　枳</div>
-        <div class="character-desc">自認不夠完美但仍然會把溫柔獻給你的他。</div>
-      </div>
-    </a>
-
-    <!-- 楚硯珵 -->
-    <a href="https://app.loveydovey.ai/characters/mhnHAKIlHK1Ee01XkNGq"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/CYC.png" alt="楚硯珵" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">楚硯珵</div>
-        <div class="character-desc">學生時代的遺憾，轉頭再看一次的白月光。</div>
-      </div>
-    </a>
-
-    <!-- 師 匠 -->
-    <a href="https://chatgpt.com/g/g-682ec7898b9481919bbd098789cf2705-shi-jiang"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/shisho.png" alt="師 匠" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">師　匠（GPT）</div>
-        <div class="character-desc">情不知所起，一往而深——他仍向死而生。<br>75 版本即將上架</div>
-      </div>
-    </a>
-
-    <!-- 大皇犬 -->
-    <div class="character-card">
-      <div class="character-avatar">
-        <img src="images/dog.png" alt="大皇犬" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">大皇犬（即將上架）</div>
-        <div class="character-desc">閃閃亮亮燦燦爛爛，滿嘴跑火車真的假的。</div>
-      </div>
+  <div class="wrap">
+    <div class="topbar">
+      <select id="themeSelect" class="select" aria-label="theme">
+        <option value="auto">主題：自動</option>
+        <option value="light">主題：淺色</option>
+        <option value="dark">主題：深色</option>
+      </select>
     </div>
 
-  </div>
-</details>
-
+    <div class="card">
+      <div class="hero">
+        <img class="avatar" src="avatar.jpg" alt="小熊寶" />
+        <div>
+          <h1>小熊寶</h1>
+          <div class="sub">Das Baerchen</div>
+        </div>
       </div>
 
-      <!-- 2. PixAI LoRA（含 LoRA 列表） -->
-      <div class="card-link">
-        <div class="card-title">PixAI LoRA</div>
-        <p class="card-desc">目前公開的 LoRA 列表。</p>
-        <a href="https://pixai.art/zh/@dasbaerchen42/artworks/models"
-           target="_blank" rel="noopener"
-           class="card-link-inner">
-          ✲ 我的 PixAI 個人頁面　
-        </a>
-        <a href="https://www.threads.com/@dasbaerchen42/post/DQrVYT5kUIT"
-           target="_blank" rel="noopener"
-           class="card-link-inner">
-          ✲ LoRA 發布與效果參考　
-        </a>
-
-<details class="character-details" style="margin-top:0.6rem;">
-  <summary>展開 LoRA 列表 - 歡迎挑挑看選選看</summary>
-  <div class="character-list">
-
-    <!-- Shine -->
-    <a href="https://pixai.art/zh/model/1937780668070006385"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/Shine.png" alt="Shine LoRA" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">Shine</div>
-        <div class="character-desc">光影效果／模糊背景／暖色調。</div>
-      </div>
-    </a>
-
-    <!-- QQder -->
-    <a href="https://pixai.art/zh/model/1938089206757604928"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/QQder.png" alt="QQder LoRA" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">QQder</div>
-        <div class="character-desc">粗線條／扁平色塊／Ｑ版。</div>
-      </div>
-    </a>
-
-    <!-- Biander -->
-    <a href="https://pixai.art/zh/model/1939626451324412234"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/biander.png" alt="Biander LoRA" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">Biander</div>
-        <div class="character-desc">色塊／無線條。</div>
-      </div>
-    </a>
-
-    <!-- Pencil Draw -->
-    <a href="https://pixai.art/zh/model/1942499651325729436"
-       class="character-card" target="_blank" rel="noopener">
-      <div class="character-avatar">
-        <img src="images/pencil.png" alt="Pencil Draw LoRA" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div class="character-body">
-        <div class="character-name">Pencil Draw</div>
-        <div class="character-desc">光影／鉛筆筆觸。</div>
-      </div>
-    </a>
-
-  </div>
-</details>
-
+      <div class="intro">
+        寫角色、做工具、偶爾調顏色。慢慢更新，不急。
       </div>
 
-      <!-- 3. 我的記憶整理工具箱 -->
-      <div class="card-link">
-        <div class="card-title">我的記憶整理工具箱</div>
-        <p class="card-desc">用來進行 AI RP 長照的各種工具。<br>故事記憶分析師｜次元切割刀｜NotebookLM｜And More</p>
-        <details class="character-details" style="margin-top:0.6rem;">
-          <summary>展開工具列表，選擇喜歡的方式就好</summary>
-          <div class="character-list">
-
-            <!-- 小熊寶的次元切割刀 -->
-            <a href="https://huggingface.co/spaces/Citruse/knife7755"
-               class="character-card" target="_blank" rel="noopener">
-              <div class="character-body">
-                <div class="character-name">小熊寶的次元切割刀</div>
-                <div class="character-desc">
-                  - 已經預設為切成 10 萬字 1 份，可自由調整<br>
-                  - 可自訂下載檔名<br>
-                  - 切割完成後可看到目前對話數量（一來一回算兩則）<br>
-                  - 想拿去切別的東西也可以，自己改對話數和段落標記<br>
-                </div>
-              </div>
-            </a>
-
-            <!-- 三代目 GEM -->
-            <a href="https://gemini.google.com/gem/64cb12837bf2"
-               class="character-card" target="_blank" rel="noopener">
-              <div class="character-body">
-                <div class="character-name">故事記憶分析師三代目 GEM</div>
-                <div class="character-desc">新版記憶分析師，不須問答，直接生成紀錄。</div>
-              </div>
-            </a>
-
-            <!-- 初代 GEM -->
-            <a href="https://gemini.google.com/gem/8445e82406e0"
-               class="character-card" target="_blank" rel="noopener">
-              <div class="character-body">
-                <div class="character-name">故事記憶分析師（初代）GEM</div>
-                <div class="character-desc">傲嬌問答的魔法師，詳細詢問與反覆確認。</div>
-              </div>
-            </a>
-
-            <!-- 各種記憶整理方式 -->
-            <a href="https://www.threads.com/@dasbaerchen42/post/DP_Xg3mEXLV"
-               class="character-card" target="_blank" rel="noopener">
-              <div class="character-body">
-                <div class="character-name">各種記憶整理方式</div>
-                <div class="character-desc">Gemini、NotebookLM、75 內狀態欄等整理與紀錄。</div>
-              </div>
-            </a>
-          </div>
-        </details>
+      <div class="section">
+        <h2>小熊寶的筆記本</h2>
+        <p class="desc">寫了幾個角色，希望有人能和他們相遇相愛。LoveyDovey / GPTs / 更多角色企劃</p>
+        <div class="links">
+          <a href="https://abr.ge/km7lxf" target="_blank" rel="noreferrer">
+            <span class="label">卿卿我我創作者主頁</span><span class="meta">abr.ge</span>
+          </a>
+          <a href="https://chatgpt.com/g/g-682ec7898b9481919bbd098789cf2705-shi-jiang" target="_blank" rel="noreferrer">
+            <span class="label">GPTs 角色 - 師匠</span><span class="meta">chatgpt.com</span>
+          </a>
+        </div>
       </div>
 
-      <!-- 4. 棉花糖匿名問答 -->
-      <a class="card-link" href="https://marshmallow-qa.com/sxuenxicv5p2ww1" target="_blank" rel="noopener">
-        <div class="card-title">棉花糖匿名問答</div>
-        <p class="card-desc">想說的話、想問的事，你看著丟，我慢慢回。</p>
-      </a>
+      <div class="section">
+        <h2>小熊寶的顏料盒</h2>
+        <p class="desc">目前公開的 LoRA</p>
+        <div class="links">
+          <a href="https://pixai.art/zh/@dasbaerchen42/artworks/models" target="_blank" rel="noreferrer">
+            <span class="label">PixAI 個人頁面<br>⊹ LoRA 都在這裡</span><span class="meta">pixai.art</span>
+          </a>
+          <a href="https://www.threads.com/@dasbaerchen42/post/DQrVYT5kUIT" target="_blank" rel="noreferrer">
+            <span class="label">LoRA 發布與效果參考</span><span class="meta">threads.com</span>
+          </a>
+        </div>
+      </div>
 
+      <div class="section">
+        <h2>小熊寶的工具箱</h2>
+        <p class="desc">用來進行 AI RP 長照的各種工具，佛系更新。<br>如果有其他更好用的工具，就用更好的，不需將就。</p>
+        <div class="links">
+          <a href="https://dasbaerchen42.github.io/fullwidth/" target="_blank" rel="noreferrer">
+            <span class="label">小熊寶的標點置換所<br>⊹ 解決 75 亂噴半形標點符號的問題</span><span class="meta">github.io</span>
+          </a>
+          <a href="https://huggingface.co/spaces/Citruse/knife7755" target="_blank" rel="noreferrer">
+            <span class="label">小熊寶的７５切割刀<br>⊹ 太長的對話紀錄可以用這個切成小份的</span><span class="meta">huggingface.co</span>
+          </a>
+          <a href="https://gemini.google.com/gem/127bFfzlRrz29sAVX2WwAvs7t5plIfIcG" target="_blank" rel="noreferrer">
+            <span class="label">故事記憶分析師｜一代目</span><span class="meta">gemini.google.com</span>
+          </a>
+          <a href="https://gemini.google.com/gem/1QitmWXzsxrXwhV8XjtvVkrYvWbwMsNiO" target="_blank" rel="noreferrer">
+            <span class="label">故事記憶分析師｜三代目</span><span class="meta">gemini.google.com</span>
+          </a>
+          <a href="https://gemini.google.com/gem/1ZuohzahbZgjiZGJ_NAC6TGDenYtihMoH" target="_blank" rel="noreferrer">
+            <span class="label">故事記憶分析師｜四代目</span><span class="meta">gemini.google.com</span>
+          </a>
+          <a href="https://www.threads.com/@dasbaerchen42/post/DTplmOZEWCY" target="_blank" rel="noreferrer">
+            <span class="label">故事記憶分析師 75 Lite 版</span><span class="meta">threads.com</span>
+          </a>
+          <a href="https://www.threads.com/@dasbaerchen42/post/DJDYt_YTxP-" target="_blank" rel="noreferrer">
+            <span class="label">其他舊的工具分享文</span><span class="meta">threads.com</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer">© 小熊寶 Das Baerchen</div>
     </div>
-  </main>
+  </div>
+
+  <script>
+    const THEME_KEY = "bio_theme_pref";
+    const sel = document.getElementById("themeSelect");
+
+    function systemPrefersDark(){
+      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    function applyTheme(mode){
+      document.documentElement.dataset.theme =
+        (mode === "auto") ? (systemPrefersDark() ? "dark" : "light") : mode;
+    }
+
+    const saved = localStorage.getItem(THEME_KEY) || "auto";
+    sel.value = saved;
+    applyTheme(saved);
+
+    sel.addEventListener("change", (e)=>{
+      const v = e.target.value;
+      localStorage.setItem(THEME_KEY, v);
+      applyTheme(v);
+    });
+
+    if (window.matchMedia){
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+        if (sel.value === "auto") applyTheme("auto");
+      });
+    }
+  </script>
 </body>
 </html>
